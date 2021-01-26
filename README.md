@@ -3,7 +3,6 @@
 These YAMLs can be used on a Kubernetes-cluster to set-up a Nextcloud instance using MariaDB, redis and nginx + fpm. Traefik v2 works as the ingress controller. This deployment was tested on k3os running k3s v1.18.9+k3s1 but should run on any other kubernetes distribution.
 
 ## Bugs
-* OnlyOffice doesn't connect
 * You tell me
 
 ## Prerequisites:
