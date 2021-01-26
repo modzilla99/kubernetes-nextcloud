@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud-redis
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+spec:
+  selector:
+    matchLabels:
+      app: nextcloud
+      tier: redis-backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+        tier: redis-backend
+    spec:
+      containers:
+      - image: docker.io/library/redis:6-alpine
+        name: nextcloud-redis
+        command:
+          - /bin/sh
+        args:
+        - "-c"
+        - redis-server --requirepass ${REDIS_PASSWORD}
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-redis-secret
+              key: Password
+        ports:
+        - containerPort: 6379
+          name: redis

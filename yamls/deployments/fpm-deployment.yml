@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud-fpm
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+spec:
+  selector:
+    matchLabels:
+      app: nextcloud
+      tier: fpm-backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+        tier: fpm-backend
+    spec:
+      containers:
+      - image: docker.io/library/nextcloud:stable-fpm
+        name: nextcloud-fpm
+        env:
+        - name: MYSQL_HOST
+          value: nextcloud-mariadb
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-mariadb-secret
+              key: DatabasePassword
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-secret
+              key: DatabaseName
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-secret
+              key: DatabaseUser
+        - name: REDIS_HOST
+          value: nextcloud-redis
+        - name: REDIS_HOST_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-redis-secret
+              key: Password
+        - name: NEXTCLOUD_TRUSTED_DOMAINS
+          valueFrom:
+            secretKeyRef:
+              name: nextcloud-secret
+              key: Domain
+        ports:
+        - containerPort: 9000
+          name: fpm
+        volumeMounts:
+        - name: nextcloud-html-storage
+          mountPath: /var/www/html
+        - name: nextcloud-persistent-storage
+          mountPath: /var/www/html/data
+        - name: configs
+          mountPath: /var/www/html/config/proxy.config.php
+          subPath: proxy.config.php
+        - name: configs
+          mountPath: /var/www/html/config/smtp.config.php
+          subPath: smtp.config.php
+        - name: configs
+          mountPath: /var/www/html/config/onlyoffice.config.php
+          subPath: onlyoffice.config.php
+        - name: configs
+          mountPath: /var/www/html/config/extra.config.php
+          subPath: extra.config.php
+      volumes:
+      - name: nextcloud-html-storage
+        persistentVolumeClaim:
+          claimName: nextcloud-html-pv-claim
+      - name: nextcloud-persistent-storage
+        persistentVolumeClaim:
+          claimName: nextcloud-pv-claim
+      - name: configs
+        configMap:
+          name: nextcloud-fpm

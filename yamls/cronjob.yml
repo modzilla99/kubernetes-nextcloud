@@ -1,0 +1,53 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nextcloud-cron
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+    tier: backend
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        metadata:
+          labels:
+            app: nextcloud
+            tier: fpm-backend
+        spec:
+          containers:
+          - name: nextcloud-cron
+            image: docker.io/library/nextcloud:stable-fpm
+            imagePullPolicy: IfNotPresent
+            command: ["su","-p","www-data","-s","/bin/sh"]
+            args: ["-c","php -f /var/www/html/cron.php && echo Cron job successful"]
+            volumeMounts:
+            - name: nextcloud-html-storage
+              mountPath: /var/www/html
+            - name: nextcloud-persistent-storage
+              mountPath: /var/www/html/data
+            - name: configs
+              mountPath: /var/www/html/config/proxy.config.php
+              subPath: proxy.config.php
+            - name: configs
+              mountPath: /var/www/html/config/smtp.config.php
+              subPath: smtp.config.php
+            - name: configs
+              mountPath: /var/www/html/config/onlyoffice.config.php
+              subPath: onlyoffice.config.php
+            - name: configs
+              mountPath: /var/www/html/config/extra.config.php
+              subPath: extra.config.php
+          restartPolicy: Never
+          volumes:
+          - name: nextcloud-html-storage
+            persistentVolumeClaim:
+              claimName: nextcloud-html-pv-claim
+          - name: nextcloud-persistent-storage
+            persistentVolumeClaim:
+              claimName: nextcloud-pv-claim
+          - name: configs
+            configMap:
+              name: nextcloud-fpm

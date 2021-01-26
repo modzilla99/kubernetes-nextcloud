@@ -1,0 +1,49 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+    tier: frontend
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - kind: Rule
+    match: Host(`nextcloud.mydomain.com`)
+    middlewares:
+    - name: nextcloud-dav
+      namespace: nextcloud
+    - name: nextcloud-headers
+      namespace: nextcloud
+    services:
+    - kind: Service
+      name: nextcloud
+      port: 80
+  tls:
+    secretName: nextcloud-cert
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nextcloud-onlyoffice
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+    tier: onlyoffice-backend
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - kind: Rule
+    match: Host(`office.nextcloud.mydomain.com`)
+    middlewares:
+    - name: nextcloud-office
+      namespace: nextcloud
+    services:
+    - kind: Service
+      name: nextcloud-onlyoffice
+      port: 80
+  tls:
+    secretName: nextcloud-onlyoffice-cert

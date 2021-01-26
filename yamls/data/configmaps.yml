@@ -1,0 +1,317 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-fpm
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+    tier: backend
+data:
+  proxy.config.php: |-
+    <?php
+    $CONFIG = array (
+      'overwrite.cli.url' => 'https://nextcloud.mydomain.com',
+      'overwriteprotocol' => 'https',
+      'trusted_proxies' => 
+      array (
+        0 => '10.42.0.0/16”',
+      ),
+    );
+  smtp.config.php: |-
+    <?php
+    $CONFIG = array (
+      'mail_smtpmode' => 'smtp',
+      'mail_smtpsecure' => 'tls',
+      'mail_sendmailmode' => 'smtp',
+      'mail_from_address' => 'no-reply',
+      'mail_domain' => 'mydomain.com',
+      'mail_smtpauthtype' => 'LOGIN',
+      'mail_smtpauth' => 1,
+      'mail_smtphost' => 'mail.mydomain.com',
+      'mail_smtpport' => '587',
+      'mail_smtpname' => 'no-reply@mydomain.com',
+      'mail_smtppassword' => 'password',
+    );
+  onlyoffice.config.php: |-
+    <?php
+    $CONFIG = array (
+      'onlyoffice' =>
+      array (
+        'verify_peer_off' => true,
+        'jwt_secret' => '06078f679c1e525667fe109bc05735e8',
+        'jwt_header' => 'nextcloudonlyofficeheader',
+      ),
+      'allow_local_remote_servers' => true,
+    );
+  extra.config.php: |-
+    <?php
+    $CONFIG = array (
+      /**
+       * This parameter determines where the Nextcloud logs are sent.
+       * ``file``: the logs are written to file ``nextcloud.log`` in the default
+       * Nextcloud data directory.
+       * ``syslog``: the logs are sent to the system log. This requires a syslog daemon
+       * to be active.
+       * ``errorlog``: the logs are sent to the PHP ``error_log`` function.
+       * ``systemd``: the logs are sent to the Systemd journal. This requires a system
+       * that runs Systemd and the Systemd journal. The PHP extension ``systemd``
+       * must be installed and active.
+       *
+       * Defaults to ``file``
+       */
+      'log_type' => 'file',
+    
+      /**
+       * Name of the file to which the Nextcloud logs are written if parameter
+       * ``log_type`` is set to ``file``.
+       *
+       * Defaults to ``[datadirectory]/nextcloud.log``
+       */
+      'logfile' => '/var/www/html/nextcloud.log',
+    
+      /**
+       * Log file mode for the Nextcloud loggin type in octal notation.
+       *
+       * Defaults to 0640 (writeable by user, readable by group).
+       */
+      'logfilemode' => 0640,
+    
+      /**
+       * Loglevel to start logging at. Valid values are: 0 = Debug, 1 = Info, 2 =
+       * Warning, 3 = Error, and 4 = Fatal. The default value is Warning.
+       *
+       * Defaults to ``2``
+       */
+      'loglevel' => 3,
+    
+      /**
+       * The timezone for logfiles. You may change this; see
+       * https://www.php.net/manual/en/timezones.php
+       *
+       * Defaults to ``UTC``
+       */
+      'logtimezone' => 'UTC',
+      
+      /**
+       * This sets the default language on your Nextcloud server, using ISO_639-1
+       * language codes such as ``en`` for English, ``de`` for German, and ``fr`` for
+       * French. It overrides automatic language detection on public pages like login
+       * or shared items. User's language preferences configured under "personal ->
+       * language" override this setting after they have logged in. Nextcloud has two
+       * distinguished language codes for German, 'de' and 'de_DE'. 'de' is used for
+       * informal German and 'de_DE' for formal German. By setting this value to 'de_DE'
+       * you can enforce the formal version of German unless the user has chosen
+       * something different explicitly.
+       *
+       * Defaults to ``en``
+       */
+      'default_language' => 'en',
+    
+      /**
+       * This sets the default locale on your Nextcloud server, using ISO_639
+       * language codes such as ``en`` for English, ``de`` for German, and ``fr`` for
+       * French, and ISO-3166 country codes such as ``GB``, ``US``, ``CA``, as defined
+       * in RFC 5646. It overrides automatic locale detection on public pages like
+       * login or shared items. User's locale preferences configured under "personal
+       * -> locale" override this setting after they have logged in.
+       *
+       * Defaults to ``en``
+       */
+      'default_locale' => 'en',
+    
+      /**
+       * This sets the default region for phone numbers on your Nextcloud server,
+       * using ISO 3166-1 country codes such as ``DE`` for Germany, ``FR`` for France, …
+       * It is required to allow inserting phone numbers in the user profiles starting
+       * without the country code (e.g. +49 for Germany).
+       *
+       * No default value!
+       */
+      'default_phone_region' => 'US',
+    
+      /**
+       * Set the default app to open on login. Use the app names as they appear in the
+       * URL after clicking them in the Apps menu, such as documents, calendar, and
+       * gallery. You can use a comma-separated list of app names, so if the first
+       * app is not enabled for a user then Nextcloud will try the second one, and so
+       * on. If no enabled apps are found it defaults to the dashboard app.
+       *
+       * Defaults to ``dashboard,files``
+       */
+      'defaultapp' => 'files',
+    
+      /**
+       * Specifies how often the local filesystem (the Nextcloud data/ directory, and
+       * NFS mounts in data/) is checked for changes made outside Nextcloud. This
+       * does not apply to external storages.
+       *
+       * 0 -> Never check the filesystem for outside changes, provides a performance
+       * increase when it's certain that no changes are made directly to the
+       * filesystem
+       *
+       * 1 -> Check each file or folder at most once per request, recommended for
+       * general use if outside changes might happen.
+       *
+       * Defaults to ``0``
+       */
+      'filesystem_check_changes' => 0,
+    
+      /**
+       * Secret used by Nextcloud for various purposes, e.g. to encrypt data. If you
+       * lose this string there will be data corruption.
+       */
+      'secret' => '',
+    );
+  nginx.conf: |-
+    worker_processes auto;
+    
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+    
+    
+    events {
+        worker_connections  1024;
+    }
+    
+    
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+    
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                            '$status $body_bytes_sent "$http_referer" '
+                            '"$http_user_agent" "$http_x_forwarded_for"';
+    
+        access_log  /var/log/nginx/access.log  main;
+    
+        sendfile        on;
+        #tcp_nopush     on;
+    
+        keepalive_timeout  65;
+    
+        set_real_ip_from  10.42.0.0/16;
+        real_ip_header    X-Real-IP;
+    
+        gzip  on;
+    
+        upstream php-handler {
+            server nextcloud-fpm:9000;
+        }
+    
+        server {
+            listen 80;
+    
+            # Add headers to serve security related headers
+            # Before enabling Strict-Transport-Security headers please read into this
+            # topic first.
+            #add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload;" always;
+            #
+            # WARNING: Only add the preload option once you read about
+            # the consequences in https://hstspreload.org/. This option
+            # will add the domain to a hardcoded list that is shipped
+            # in all major browsers and getting removed from this list
+            # could take several months.
+            add_header Referrer-Policy "no-referrer" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header X-Download-Options "noopen" always;
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-Permitted-Cross-Domain-Policies "none" always;
+            add_header X-Robots-Tag "none" always;
+            add_header X-XSS-Protection "1; mode=block" always;
+    
+            # Remove X-Powered-By, which is an information leak
+            fastcgi_hide_header X-Powered-By;
+    
+            # Path to the root of your installation
+            root /var/www/html;
+    
+            location = /robots.txt {
+                allow all;
+                log_not_found off;
+                access_log off;
+            }
+    
+            # The following 2 rules are only needed for the user_webfinger app.
+            # Uncomment it if you're planning to use this app.
+            #rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+            #rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json last;
+    
+            # The following rule is only needed for the Social app.
+            # Uncomment it if you're planning to use this app.
+            #rewrite ^/.well-known/webfinger /public.php?service=webfinger last;
+    
+            # set max upload size
+            client_max_body_size 10G;
+            fastcgi_buffers 64 4K;
+    
+            # Enable gzip but do not remove ETag headers
+            gzip on;
+            gzip_vary on;
+            gzip_comp_level 4;
+            gzip_min_length 256;
+            gzip_proxied expired no-cache no-store private no_last_modified no_etag auth;
+            gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
+    
+            # Uncomment if your server is build with the ngx_pagespeed module
+            # This module is currently not supported.
+            #pagespeed off;
+    
+            location / {
+                rewrite ^ /index.php;
+            }
+    
+            location ~ ^\/(?:build|tests|config|lib|3rdparty|templates|data)\/ {
+                deny all;
+            }
+            location ~ ^\/(?:\.|autotest|occ|issue|indie|db_|console) {
+                deny all;
+            }
+    
+            location ~ ^\/(?:index|remote|public|cron|core\/ajax\/update|status|ocs\/v[12]|updater\/.+|oc[ms]-provider\/.+)\.php(?:$|\/) {
+                fastcgi_split_path_info ^(.+?\.php)(\/.*|)$;
+                set $path_info $fastcgi_path_info;
+                try_files $fastcgi_script_name =404;
+                include fastcgi_params;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                fastcgi_param PATH_INFO $path_info;
+                # fastcgi_param HTTPS on;
+    
+                # Avoid sending the security headers twice
+                fastcgi_param modHeadersAvailable true;
+    
+                # Enable pretty urls
+                fastcgi_param front_controller_active true;
+                fastcgi_pass php-handler;
+                fastcgi_intercept_errors on;
+                fastcgi_request_buffering off;
+            }
+    
+            location ~ ^\/(?:updater|oc[ms]-provider)(?:$|\/) {
+                try_files $uri/ =404;
+                index index.php;
+            }
+    
+            # Adding the cache control header for js, css and map files
+            # Make sure it is BELOW the PHP block
+            location ~ \.(?:css|js|woff2?|svg|gif|map)$ {
+                try_files $uri /index.php$request_uri;
+                add_header Cache-Control "public, max-age=15778463";
+                add_header Referrer-Policy "no-referrer" always;
+                add_header X-Content-Type-Options "nosniff" always;
+                add_header X-Download-Options "noopen" always;
+                add_header X-Frame-Options "SAMEORIGIN" always;
+                add_header X-Permitted-Cross-Domain-Policies "none" always;
+                add_header X-Robots-Tag "none" always;
+                add_header X-XSS-Protection "1; mode=block" always;
+    
+                # Optional: Don't log access to assets
+                access_log off;
+            }
+    
+            location ~ \.(?:png|html|ttf|ico|jpg|jpeg|bcmap|mp4|webm)$ {
+                try_files $uri /index.php$request_uri;
+                # Optional: Don't log access to other assets
+                access_log off;
+            }
+        }
+    }

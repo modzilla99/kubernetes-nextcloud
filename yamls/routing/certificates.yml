@@ -1,0 +1,27 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nextcloud-cert
+  namespace: nextcloud
+spec:
+  commonName: nextcloud.mydomain.com
+  dnsNames:
+  - nextcloud.mydomain.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  secretName: nextcloud-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nextcloud-onlyoffice-cert
+  namespace: nextcloud
+spec:
+  commonName: office.nextcloud.mydomain.com
+  dnsNames:
+  - office.nextcloud.mydomain.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  secretName: nextcloud-onlyoffice-cert
