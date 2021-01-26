@@ -2,6 +2,12 @@
 
 These YAMLs can be used on a Kubernetes-cluster to set-up a Nextcloud instance using MariaDB, redis and nginx + fpm. Traefik v2 works as the ingress controller. This deployment was tested on k3os running k3s v1.18.9+k3s1 but should run on any other kubernetes distribution.
 
+## Todo
+* Use kustomize for secrets
+* Healthchecks
+* Resource Limits
+* Upgrade instructions
+
 ## Bugs
 * You tell me
 
@@ -185,7 +191,7 @@ metadata:
     app: nextcloud
     tier: onlyoffice-backend
 data:
-  secret: MDYwNzhmNjc5YzFlNTI1NjY3ZmUxMDliYzA1NzM1ZTg=      #Needs to be changed
+  secret: MDYwNzhmNjc5YzFlNTI1NjY3ZmUxMDliYzA1NzM1ZTg=              #Needs to be changed
   header: bmV4dGNsb3Vkb25seW9mZmljZWhlYWRlcg==
 
 ```
