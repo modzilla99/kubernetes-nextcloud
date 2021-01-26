@@ -246,3 +246,6 @@ Run the final deploy and hope for the best!
 kubectl apply -f namespace.yml -f secrets.yml -f conjob.yml -f routing/ -f data/ -f deployments/
 ```
 
+## Configuring OnlyOffice
+
+Setting up onlyoffice is as easy as installing the onlyoffice app, activating it, setting your public domain of the onlyoffice installation in the first field and http://nextcloud-onlyoffice.nextcloud.svc.cluster.local/ or http://nextcloud.nextcloud.svc.cluster.local/ in the last two respectively. The private key should already be present in the second one. Klick on save and profit.
