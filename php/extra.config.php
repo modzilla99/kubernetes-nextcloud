@@ -21,7 +21,7 @@ $CONFIG = array (
    *
    * Defaults to ``[datadirectory]/nextcloud.log``
    */
-  'logfile' => '/var/www/html/nextcloud.log',
+  'logfile' => '/var/log/nextcloud.log',
 
   /**
    * Log file mode for the Nextcloud loggin type in octal notation.
